@@ -1,4 +1,4 @@
-//    channel.rb
+//    Channel.rb
 //    ~~~~~~~~~
 //    This module implements the Channel class.
 //    :authors: Konstantin Bokarius.
@@ -6,8 +6,6 @@
 //    :license: MIT, see LICENSE for more details.
 
 package org.fanout.gripcontrol;
-
-import java.util.*;
 
 /**
  * The Channel class is used to represent a channel in for a GRIP proxy.

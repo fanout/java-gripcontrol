@@ -1,7 +1,6 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import java.util.*;
 import org.fanout.gripcontrol.*;
 
 public class ChannelTest {
