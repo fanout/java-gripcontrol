@@ -1,4 +1,4 @@
-//    Response.rb
+//    Response.java
 //    ~~~~~~~~~
 //    This module implements the Response class.
 //    :authors: Konstantin Bokarius.
@@ -25,16 +25,14 @@ public class Response {
     /**
      * Initialize with the body.
      */
-    public Response(String body)
-    {
+    public Response(String body) {
         this.body = body;
     }
 
     /**
      * Initialize with the body and headers.
      */
-    public Response(String body, Map<String, String> headers)
-    {
+    public Response(String body, Map<String, String> headers) {
         this.body = body;
         this.headers = headers;
     }
@@ -42,8 +40,7 @@ public class Response {
     /**
      * Initialize with the body, headers, code and reason.
      */
-    public Response(String body, Map<String, String> headers, String code, String reason)
-    {
+    public Response(String body, Map<String, String> headers, String code, String reason) {
         this.body = body;
         this.headers = headers;
         this.code = code;

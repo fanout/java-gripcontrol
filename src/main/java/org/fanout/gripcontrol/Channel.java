@@ -1,4 +1,4 @@
-//    Channel.rb
+//    Channel.java
 //    ~~~~~~~~~
 //    This module implements the Channel class.
 //    :authors: Konstantin Bokarius.
@@ -17,8 +17,7 @@ public class Channel {
     /**
      * Initialize with the channel name and an optional previous ID.
      */
-    public Channel(String name, String prevId)
-    {
+    public Channel(String name, String prevId) {
         this.name = name;
         this.prevId = prevId;
     }

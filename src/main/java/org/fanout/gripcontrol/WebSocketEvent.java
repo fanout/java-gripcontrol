@@ -1,4 +1,4 @@
-//    WebSocketEvent.rb
+//    WebSocketEvent.java
 //    ~~~~~~~~~
 //    This module implements the WebSocketEvent class.
 //    :authors: Konstantin Bokarius.
@@ -7,7 +7,8 @@
 
 package org.fanout.gripcontrol;
 
-/** Event information used with the GRIP WebSocket-over-HTTP protocol.
+/**
+ * Event information used with the GRIP WebSocket-over-HTTP protocol.
  * Includes information about the type of event as well as an optional content field.
  */
 public class WebSocketEvent {
@@ -17,16 +18,14 @@ public class WebSocketEvent {
     /**
      * Initialize with a specified event type.
      */
-    public WebSocketEvent(String type)
-    {
+    public WebSocketEvent(String type) {
         this.type = type;
     }
 
     /**
      * Initialize with a specified event type and content information.
      */
-    public WebSocketEvent(String type, String content)
-    {
+    public WebSocketEvent(String type, String content) {
         this.type = type;
         this.content = content;
     }
