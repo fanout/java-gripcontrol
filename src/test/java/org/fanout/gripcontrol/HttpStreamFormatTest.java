@@ -21,7 +21,7 @@ public class HttpStreamFormatTest {
         format = new HttpStreamFormat(byteData);
         export = (Map<String, Object>)format.export();
         assertEquals(export.get("content-bin"), DatatypeConverter.printBase64Binary(byteData));
-        format = new HttpStreamFormat("", true);
+        format = new HttpStreamFormat(HttpStreamAction.CLOSE);
         export = (Map<String, Object>)format.export();
         assertEquals(export.get("action"), "close");
     }

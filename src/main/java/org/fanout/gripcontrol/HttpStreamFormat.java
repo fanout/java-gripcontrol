@@ -21,7 +21,16 @@ public class HttpStreamFormat implements Format {
     public Boolean isClose = false;
 
     /**
-     * Initialize with the content.
+     * Initialize with an action.
+     */
+    public HttpStreamFormat(HttpStreamAction action) throws
+            UnsupportedEncodingException, IllegalArgumentException {
+        if (action == HttpStreamAction.CLOSE)
+            this.isClose = true;
+    }
+
+    /**
+     * Initialize with string content.
      */
     public HttpStreamFormat(String content) throws
             UnsupportedEncodingException, IllegalArgumentException {
@@ -30,32 +39,15 @@ public class HttpStreamFormat implements Format {
     }
 
     /**
-     * Initialize with the content and a boolean indicating the close status.
+     * Initialize with byte array content.
      */
-    public HttpStreamFormat(String content, Boolean isClose) throws
+    public HttpStreamFormat(byte[] content) throws
             UnsupportedEncodingException, IllegalArgumentException {
-        this.content = content.getBytes("utf-8");
-        this.isClose = isClose;
-        verifyContent();
-    }
-
-    /**
-     * Initialize with the content.
-     */
-    public HttpStreamFormat(byte[] content) throws IllegalArgumentException {
         this.content = content;
         verifyContent();
     }
 
     /**
-     * Initialize with the content and a boolean indicating the close status.
-     */
-    public HttpStreamFormat(byte[] content, Boolean isClose) throws IllegalArgumentException {
-        this.content = content;
-        this.isClose = isClose;
-        verifyContent();
-    }
-
     /**
      * The name used when publishing this format.
      */
