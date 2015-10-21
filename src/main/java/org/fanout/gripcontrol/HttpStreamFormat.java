@@ -23,8 +23,7 @@ public class HttpStreamFormat implements Format {
     /**
      * Initialize with an action.
      */
-    public HttpStreamFormat(HttpStreamAction action) throws
-            UnsupportedEncodingException, IllegalArgumentException {
+    public HttpStreamFormat(HttpStreamAction action) throws IllegalArgumentException {
         if (action == HttpStreamAction.CLOSE)
             this.isClose = true;
     }
@@ -41,8 +40,7 @@ public class HttpStreamFormat implements Format {
     /**
      * Initialize with byte array content.
      */
-    public HttpStreamFormat(byte[] content) throws
-            UnsupportedEncodingException, IllegalArgumentException {
+    public HttpStreamFormat(byte[] content) throws IllegalArgumentException {
         this.content = content;
         verifyContent();
     }
