@@ -67,10 +67,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponse(List<String> channels, HttpResponseFormat format,
             String id, String prevId) throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(format), id, prevId));
     }
 
     /**
@@ -79,11 +76,7 @@ public class GripPubControl extends PubControl {
     public void publishHttpResponse(List<String> channels, String body,
             String id, String prevId)
             throws PublishFailedException, UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpResponseFormat(body)), id, prevId));
     }
 
     /**
@@ -91,11 +84,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponse(List<String> channels, byte[] body,
             String id, String prevId) throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpResponseFormat(body)), id, prevId));
     }
 
     /**
@@ -103,10 +92,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponse(List<String> channels, HttpResponseFormat format)
             throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(format), null, null));
     }
 
     /**
@@ -114,22 +100,14 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponse(List<String> channels, String body)
             throws PublishFailedException, UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpResponseFormat(body)), null, null));
     }
 
     /**
      * Synchronously publish an HTTP response format message.
      */
     public void publishHttpResponse(List<String> channels, byte[] body) throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpResponseFormat(body)), null, null));
     }
 
     /**
@@ -137,10 +115,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponseAsync(List<String> channels, HttpResponseFormat format,
             String id, String prevId, PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels, new Item(getListOfFormats(format), id, prevId), callback);
     }
 
     /**
@@ -149,11 +124,8 @@ public class GripPubControl extends PubControl {
     public void publishHttpResponseAsync(List<String> channels, String body,
             String id, String prevId, PublishCallback callback)
             throws UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpResponseFormat(body)), id, prevId), callback);
     }
 
     /**
@@ -161,11 +133,8 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponseAsync(List<String> channels, byte[] body,
             String id, String prevId, PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpResponseFormat(body)), id, prevId), callback);
     }
 
     /**
@@ -173,10 +142,8 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponseAsync(List<String> channels, HttpResponseFormat format,
             PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(format), null, null), callback);
     }
 
     /**
@@ -184,11 +151,8 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponseAsync(List<String> channels, String body, PublishCallback callback)
             throws UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpResponseFormat(body)), null, null), callback);
     }
 
     /**
@@ -196,11 +160,8 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpResponseAsync(List<String> channels, byte[] body,
             PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        HttpResponseFormat format = new HttpResponseFormat(body);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpResponseFormat(body)), null, null), callback);
     }
 
     /**
@@ -208,10 +169,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStream(List<String> channels, HttpStreamFormat format,
             String id, String prevId) throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(format), id, prevId));
     }
 
     /**
@@ -220,11 +178,7 @@ public class GripPubControl extends PubControl {
     public void publishHttpStream(List<String> channels, String content,
             String id, String prevId)
             throws PublishFailedException, UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpStreamFormat(content)), id, prevId));
     }
 
     /**
@@ -232,11 +186,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStream(List<String> channels, byte[] content,
             String id, String prevId) throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpStreamFormat(content)), id, prevId));
     }
 
     /**
@@ -244,10 +194,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStream(List<String> channels, HttpStreamFormat format)
             throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(format), null, null));
     }
 
     /**
@@ -255,22 +202,14 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStream(List<String> channels, String content)
             throws PublishFailedException, UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpStreamFormat(content)), null, null));
     }
 
     /**
      * Synchronously publish an HTTP stream format message.
      */
     public void publishHttpStream(List<String> channels, byte[] content) throws PublishFailedException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publish(channels, item);
+        super.publish(channels, new Item(getListOfFormats(new HttpStreamFormat(content)), null, null));
     }
 
     /**
@@ -278,10 +217,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStreamAsync(List<String> channels, HttpStreamFormat format,
             String id, String prevId, PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels, new Item(getListOfFormats(format), id, prevId), callback);
     }
 
     /**
@@ -290,11 +226,8 @@ public class GripPubControl extends PubControl {
     public void publishHttpStreamAsync(List<String> channels, String content,
             String id, String prevId, PublishCallback callback)
             throws UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpStreamFormat(content)), id, prevId), callback);
     }
 
     /**
@@ -302,11 +235,8 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStreamAsync(List<String> channels, byte[] content,
             String id, String prevId, PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, id, prevId);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpStreamFormat(content)), id, prevId), callback);
     }
 
     /**
@@ -314,10 +244,7 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStreamAsync(List<String> channels, HttpStreamFormat format,
             PublishCallback callback) {
-        List<Format> formats = new ArrayList<Format>();
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels, new Item(getListOfFormats(format), null, null), callback);
     }
 
     /**
@@ -325,11 +252,8 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStreamAsync(List<String> channels, String content, PublishCallback callback)
             throws UnsupportedEncodingException {
-        List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
-        formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publishAsync(channels, item, callback);
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpStreamFormat(content)), null, null), callback);
     }
 
     /**
@@ -337,10 +261,16 @@ public class GripPubControl extends PubControl {
      */
     public void publishHttpStreamAsync(List<String> channels, byte[] content,
             PublishCallback callback) {
+        super.publishAsync(channels,
+                new Item(getListOfFormats(new HttpStreamFormat(content)), null, null), callback);
+    }
+
+    /**
+     * Get a list of formats containing the specified format.
+     */
+    private List<Format> getListOfFormats(Format format) {
         List<Format> formats = new ArrayList<Format>();
-        HttpStreamFormat format = new HttpStreamFormat(content);
         formats.add(format);
-        Item item = new Item(formats, null, null);
-        super.publishAsync(channels, item, callback);
+        return formats;
     }
 }
