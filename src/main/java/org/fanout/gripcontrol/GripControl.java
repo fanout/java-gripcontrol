@@ -7,11 +7,18 @@
 
 package org.fanout.gripcontrol;
 
+import java.net.*;
 import java.util.*;
 import org.fanout.pubcontrol.*;
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import com.google.gson.Gson;
+import javax.xml.bind.DatatypeConverter;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.crypto.MacProvider;
+import java.lang.IllegalArgumentException;
 
 /**
  * This class and its features are used in conjunction with GRIP proxies.
@@ -37,49 +44,6 @@ public class GripControl {
         if (holdResponse != null)
             instruct.put("response", holdResponse);
         return new Gson().toJson(instruct);
-    }
-
-
-    /**
-     * Get an array of hashes representing the specified channels parameter.
-     * The resulting array is used for creating GRIP proxy hold instructions.
-     */
-    private List<Map<String, Object>> getHoldChannels(List<Channel> channels) {
-        List<Map<String, Object>> holdChannels = new ArrayList<Map<String, Object>>();
-        for (Channel channel : channels) {
-            Map<String, Object> holdChannel = new HashMap<String, Object>();
-            holdChannel.put("name", channel.name);
-            if (channel.prevId != null)
-                holdChannel.put("prev-id", channel.prevId);
-            holdChannels.add(holdChannel);
-        }
-        return holdChannels;
-    }
-
-    /**
-     * Get a hash representing the specified response parameter.
-     * The resulting hash is used for creating GRIP proxy hold instructions.
-     */
-    private Map<String, Object> getHoldResponse(Response response) {
-        if (response == null)
-            return null;
-        Map<String, Object> holdResponse = new HashMap<String, Object>();
-        if (response.code != null)
-            holdResponse.put("code", response.code);
-        if (response.reason != null)
-            holdResponse.put("reason", response.reason);
-        if (response.headers != null)
-            holdResponse.put("headers", response.headers);
-        if (response.body != null) {
-            if (Utilities.isUtf8(response.body)) {
-                try {
-                    holdResponse.put("body", new String(response.body, "utf-8"));
-                } catch (UnsupportedEncodingException e) { }
-            } else {
-                holdResponse.put("body-bin", DatatypeConverter.printBase64Binary(response.body));
-            }
-        }
-        return holdResponse;
     }
 
     /**
@@ -160,5 +124,158 @@ public class GripControl {
         String message = new Gson().toJson(out);
         out.remove("type", type);
         return message;
+    }
+
+    /**
+     * Parse the specified GRIP URI into a config object.
+     * The URI can include "iss" and "key" JWT authentication query parameters
+     * as well as any other required query string parameters. The JWT "key"
+     * query parameter can be provided as-is or in base64 encoded format.
+     */
+    public Map<String, Object> parseGripUri(String uri) throws UnsupportedEncodingException, MalformedURLException {
+        Map<String, Object> out = new HashMap<String, Object>();
+        URL url = new URL(uri);
+        Map<String, List<String>> params = Utilities.splitQuery(url);
+        String iss = "";
+        List<String> issQueryValue = params.get("iss");
+        if (issQueryValue != null) {
+            iss = issQueryValue.get(0);
+            issQueryValue.remove("iss");
+        }
+        String key = "";
+        List<String> keyQueryValue = params.get("key");
+        if (keyQueryValue != null) {
+            key = keyQueryValue.get(0);
+            keyQueryValue.remove("key");
+        }
+        if (key != null && key.startsWith("base64:"))
+            key = new String(DatatypeConverter.parseBase64Binary(key.substring(7)));
+        String queryString = "";
+	    for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+            if (queryString != "")
+                queryString = queryString + "&";
+            queryString = queryString + URLEncoder.encode(entry.getKey(), "UTF-8") +
+                    "=" + URLEncoder.encode(entry.getValue().get(0), "UTF-8");
+        }
+        String path = url.getPath();
+        if (path.endsWith("/"))
+            path = path.substring(0, path.length() - 1);
+        String port = "";
+        if (url.getPort() != 80)
+            port = ":" + Integer.toString(url.getPort());
+        String controlUri = url.getProtocol() + "://" + url.getHost() + port + path;
+        if (queryString != "")
+            controlUri = controlUri + "?" + queryString;
+        out.put("control_uri", controlUri);
+        if (iss != "")
+            out.put("control_iss", iss);
+        if (key != "")
+            out.put("key", key);
+        return out;
+    }
+
+    /**
+     * Validate the specified JWT token and key.
+     * This method is used to validate the GRIP-SIG header coming from GRIP
+     * proxies such as Pushpin or Fanout.io. Note that the token expiration
+     * is also verified.
+     */
+    public boolean validateSig(String token, String key) {
+        try {
+            Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(key))
+                    .parseClaimsJws(token).getBody();
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Encode the specified array of WebSocketEvent instances.
+     * The returned string value should then be passed to a GRIP proxy in the
+     * body of an HTTP response when using the WebSocket-over-HTTP protocol.
+     */
+    public String encodeWebSocketEvents(List<WebSocketEvent> webSocketEvents) {
+        String out = "";
+        for (WebSocketEvent event : webSocketEvents) {
+            out = out + event.type;
+            if (event.content != null)
+                out = out + " " + Integer.toString(event.content.length(), 16) + "\r\n" + event.content + "\r\n";
+            else {
+                out = out + "\r\n";
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Decode the request body into an array of WebSocketEvent instances.
+     * A RuntimeError is raised if the format is invalid.
+     */
+    public List<WebSocketEvent> decodeWebSocketEvents(String body) {
+        List<WebSocketEvent> events = new ArrayList<WebSocketEvent>();
+        int start = 0;
+        while (start < body.length()) {
+            int at = body.indexOf("\r\n", start);
+            if (at == -1)
+                throw new IllegalArgumentException("bad format");
+            String typeline = body.substring(start, at);
+            start = at + 2;
+            at = typeline.indexOf(" ");
+            WebSocketEvent event = null;
+            if (at >= 0) {
+                String etype = typeline.substring(0, at);
+                int clen = Integer.parseInt(typeline.substring(at + 1, typeline.length()), 16);
+                String content = body.substring(start, start + clen);
+                start += clen + 2;
+                event = new WebSocketEvent(etype, content);
+            } else {
+                event = new WebSocketEvent(typeline);
+            }
+            events.add(event);
+        }
+        return events;
+    }
+
+    /**
+     * Get an array of hashes representing the specified channels parameter.
+     * The resulting array is used for creating GRIP proxy hold instructions.
+     */
+    private List<Map<String, Object>> getHoldChannels(List<Channel> channels) {
+        List<Map<String, Object>> holdChannels = new ArrayList<Map<String, Object>>();
+        for (Channel channel : channels) {
+            Map<String, Object> holdChannel = new HashMap<String, Object>();
+            holdChannel.put("name", channel.name);
+            if (channel.prevId != null)
+                holdChannel.put("prev-id", channel.prevId);
+            holdChannels.add(holdChannel);
+        }
+        return holdChannels;
+    }
+
+    /**
+     * Get a hash representing the specified response parameter.
+     * The resulting hash is used for creating GRIP proxy hold instructions.
+     */
+    private Map<String, Object> getHoldResponse(Response response) {
+        if (response == null)
+            return null;
+        Map<String, Object> holdResponse = new HashMap<String, Object>();
+        if (response.code != null)
+            holdResponse.put("code", response.code);
+        if (response.reason != null)
+            holdResponse.put("reason", response.reason);
+        if (response.headers != null)
+            holdResponse.put("headers", response.headers);
+        if (response.body != null) {
+            if (Utilities.isUtf8(response.body)) {
+                try {
+                    holdResponse.put("body", new String(response.body, "utf-8"));
+                } catch (UnsupportedEncodingException e) { }
+            } else {
+                holdResponse.put("body-bin", DatatypeConverter.printBase64Binary(response.body));
+            }
+        }
+        return holdResponse;
     }
 }

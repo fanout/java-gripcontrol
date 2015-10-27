@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import org.fanout.gripcontrol.*;
+import java.net.*;
 
 public class UtilitiesTest {
     private static final byte[][] byteTests = {
