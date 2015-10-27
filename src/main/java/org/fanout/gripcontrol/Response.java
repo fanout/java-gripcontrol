@@ -8,6 +8,7 @@
 package org.fanout.gripcontrol;
 
 import java.util.*;
+import java.io.UnsupportedEncodingException;
 
 /**
  * The Response class is used to represent a set of HTTP response data.
@@ -17,7 +18,7 @@ import java.util.*;
  * to the client.
  */
 public class Response {
-    public String body;
+    public byte[] body;
     public Map<String, String>  headers;
     public String code;
     public String reason;
@@ -25,14 +26,35 @@ public class Response {
     /**
      * Initialize with the body.
      */
-    public Response(String body) {
+    public Response(String body) throws UnsupportedEncodingException {
+        this(body.getBytes("utf-8"));
+    }
+
+    /**
+     * Initialize with the body and headers.
+     */
+    public Response(String body, Map<String, String> headers) throws UnsupportedEncodingException {
+        this(body.getBytes("utf-8"), headers);
+    }
+
+    /**
+     * Initialize with the body, headers, code and reason.
+     */
+    public Response(String body, Map<String, String> headers, String code, String reason) throws UnsupportedEncodingException {
+        this(body.getBytes("utf-8"), headers, code, reason);
+    }
+
+    /**
+     * Initialize with the body.
+     */
+    public Response(byte[] body) throws UnsupportedEncodingException {
         this.body = body;
     }
 
     /**
      * Initialize with the body and headers.
      */
-    public Response(String body, Map<String, String> headers) {
+    public Response(byte[] body, Map<String, String> headers) throws UnsupportedEncodingException {
         this.body = body;
         this.headers = headers;
     }
@@ -40,7 +62,7 @@ public class Response {
     /**
      * Initialize with the body, headers, code and reason.
      */
-    public Response(String body, Map<String, String> headers, String code, String reason) {
+    public Response(byte[] body, Map<String, String> headers, String code, String reason) throws UnsupportedEncodingException {
         this.body = body;
         this.headers = headers;
         this.code = code;
