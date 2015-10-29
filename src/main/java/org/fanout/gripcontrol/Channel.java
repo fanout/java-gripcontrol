@@ -15,6 +15,13 @@ public class Channel {
     public String prevId;
 
     /**
+     * Initialize with the channel name.
+     */
+    public Channel(String name) {
+        this.name = name;
+    }
+
+    /**
      * Initialize with the channel name and an optional previous ID.
      */
     public Channel(String name, String prevId) {

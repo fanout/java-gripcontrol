@@ -31,19 +31,66 @@ import java.lang.IllegalArgumentException;
 public class GripControl {
     /**
      * Create GRIP hold instructions for the specified parameters including a timeout.
+     * To disable the timeout pass 0.
      */
-    public String createHold(String mode, List<Channel> channels, Response response, int timeout) {
+    public static String createHold(String mode, List<Channel> channels, Response response, int timeout) {
         Map<String, Object> hold = new HashMap<String, Object>();
         hold.put("mode", mode);
         List<Map<String, Object>> holdChannels = getHoldChannels(channels);
         hold.put("channels", holdChannels);
         if (timeout > 0)
             hold.put("timeout", timeout);
-        Map<String, Object> holdResponse = getHoldResponse(response);
         Map<String, Object> instruct = new HashMap<String, Object>();
+        instruct.put("hold", hold);
+        Map<String, Object> holdResponse = getHoldResponse(response);
         if (holdResponse != null)
             instruct.put("response", holdResponse);
         return new Gson().toJson(instruct);
+    }
+
+    /**
+     * Create a GRIP hold response for HTTP long-polling.
+     * This method simply passes the specified parameters to the
+     * createHold method with "response" as the hold mode.
+     */
+    public static String createHoldResponse(List<Channel> channels) {
+        return createHold("response", channels, null, 0);
+    }
+
+    /**
+     * Create a GRIP hold response for HTTP long-polling.
+     * This method simply passes the specified parameters to the
+     * createHold method with "response" as the hold mode.
+     */
+    public static String createHoldResponse(List<Channel> channels, Response response) {
+        return createHold("response", channels, response, 0);
+    }
+
+    /**
+     * Create a GRIP hold response for HTTP long-polling.
+     * This method simply passes the specified parameters to the
+     * createHold method with "response" as the hold mode.
+     */
+    public static String createHoldResponse(List<Channel> channels, Response response, int timeout) {
+        return createHold("response", channels, response, timeout);
+    }
+
+    /**
+     * Create a GRIP hold stream for HTTP streaming.
+     * This method simply passes the specified parameters to the
+     * createHold method with "response" as the hold mode.
+     */
+    public static String createHoldStream(List<Channel> channels) {
+        return createHold("stream", channels, null, 0);
+    }
+
+    /**
+     * Create a GRIP hold stream for HTTP streaming.
+     * This method simply passes the specified parameters to the
+     * createHold method with "response" as the hold mode.
+     */
+    public static String createHoldStream(List<Channel> channels, Response response) {
+        return createHold("stream", channels, response, 0);
     }
 
     /**
@@ -51,7 +98,7 @@ public class GripControl {
      * The returned GRIP channel header is used when sending instructions to
      * GRIP proxies via HTTP headers.
      */
-    public String createGripChannelHeader(List<Channel> channels) {
+    public static String createGripChannelHeader(List<Channel> channels) {
         String header = "";
         for (Channel channel : channels) {
             if (header != "")
@@ -64,48 +111,12 @@ public class GripControl {
     }
 
     /**
-     * Create a GRIP hold response for HTTP long-polling.
-     * This method simply passes the specified parameters to the
-     * createHold method with "response" as the hold mode.
+     * Generate a WebSocket control message with the specified type and optional arguments.
+     * WebSocket control messages are passed to GRIP proxies and example usage
+     * includes subscribing/unsubscribing a WebSocket connection to/from a channel.
      */
-    public String createHoldResponse(List<Channel> channels) {
-        return createHold("response", channels, null, 0);
-    }
-
-    /**
-     * Create a GRIP hold response for HTTP long-polling.
-     * This method simply passes the specified parameters to the
-     * createHold method with "response" as the hold mode.
-     */
-    public String createHoldResponse(List<Channel> channels, Response response) {
-        return createHold("response", channels, response, 0);
-    }
-
-    /**
-     * Create a GRIP hold response for HTTP long-polling.
-     * This method simply passes the specified parameters to the
-     * createHold method with "response" as the hold mode.
-     */
-    public String createHoldResponse(List<Channel> channels, Response response, int timeout) {
-        return createHold("response", channels, response, timeout);
-    }
-
-    /**
-     * Create a GRIP hold stream for HTTP streaming.
-     * This method simply passes the specified parameters to the
-     * createHold method with "response" as the hold mode.
-     */
-    public String createHoldStream(List<Channel> channels) {
-        return createHold("stream", channels, null, 0);
-    }
-
-    /**
-     * Create a GRIP hold stream for HTTP streaming.
-     * This method simply passes the specified parameters to the
-     * createHold method with "response" as the hold mode.
-     */
-    public String createHoldStream(List<Channel> channels, Response response) {
-        return createHold("stream", channels, response, 0);
+    public static String webSocketControlMessage(String type) {
+        return webSocketControlMessage(type, null);
     }
 
     /**
@@ -113,7 +124,7 @@ public class GripControl {
      * WebSocket control messages are passed to GRIP proxies and example usage
      * includes subscribing/unsubscribing a WebSocket connection to/from a channel.
      */
-    public String websocketControlMessage(String type, Map<String, Object> args) {
+    public static String webSocketControlMessage(String type, Map<String, Object> args) {
         Map<String, Object> out;
         if (args != null) {
             out = args;
@@ -132,7 +143,7 @@ public class GripControl {
      * as well as any other required query string parameters. The JWT "key"
      * query parameter can be provided as-is or in base64 encoded format.
      */
-    public Map<String, Object> parseGripUri(String uri) throws UnsupportedEncodingException, MalformedURLException {
+    public static Map<String, Object> parseGripUri(String uri) throws UnsupportedEncodingException, MalformedURLException {
         Map<String, Object> out = new HashMap<String, Object>();
         URL url = new URL(uri);
         Map<String, List<String>> params = Utilities.splitQuery(url);
@@ -180,7 +191,7 @@ public class GripControl {
      * proxies such as Pushpin or Fanout.io. Note that the token expiration
      * is also verified.
      */
-    public boolean validateSig(String token, String key) {
+    public static boolean validateSig(String token, String key) {
         try {
             Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(key))
                     .parseClaimsJws(token).getBody();
@@ -195,7 +206,7 @@ public class GripControl {
      * The returned string value should then be passed to a GRIP proxy in the
      * body of an HTTP response when using the WebSocket-over-HTTP protocol.
      */
-    public String encodeWebSocketEvents(List<WebSocketEvent> webSocketEvents) {
+    public static String encodeWebSocketEvents(List<WebSocketEvent> webSocketEvents) {
         String out = "";
         for (WebSocketEvent event : webSocketEvents) {
             out = out + event.type;
@@ -212,7 +223,7 @@ public class GripControl {
      * Decode the request body into an array of WebSocketEvent instances.
      * A RuntimeError is raised if the format is invalid.
      */
-    public List<WebSocketEvent> decodeWebSocketEvents(String body) {
+    public static List<WebSocketEvent> decodeWebSocketEvents(String body) {
         List<WebSocketEvent> events = new ArrayList<WebSocketEvent>();
         int start = 0;
         while (start < body.length()) {
@@ -241,7 +252,7 @@ public class GripControl {
      * Get an array of hashes representing the specified channels parameter.
      * The resulting array is used for creating GRIP proxy hold instructions.
      */
-    private List<Map<String, Object>> getHoldChannels(List<Channel> channels) {
+    private static List<Map<String, Object>> getHoldChannels(List<Channel> channels) {
         List<Map<String, Object>> holdChannels = new ArrayList<Map<String, Object>>();
         for (Channel channel : channels) {
             Map<String, Object> holdChannel = new HashMap<String, Object>();
@@ -257,7 +268,7 @@ public class GripControl {
      * Get a hash representing the specified response parameter.
      * The resulting hash is used for creating GRIP proxy hold instructions.
      */
-    private Map<String, Object> getHoldResponse(Response response) {
+    private static Map<String, Object> getHoldResponse(Response response) {
         if (response == null)
             return null;
         Map<String, Object> holdResponse = new HashMap<String, Object>();
