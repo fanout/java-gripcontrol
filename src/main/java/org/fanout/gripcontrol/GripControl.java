@@ -133,7 +133,7 @@ public class GripControl {
         }
         out.put("type", type);
         String message = new Gson().toJson(out);
-        out.remove("type", type);
+        out.remove("type");
         return message;
     }
 

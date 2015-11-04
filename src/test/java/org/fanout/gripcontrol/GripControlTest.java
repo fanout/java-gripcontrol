@@ -6,52 +6,78 @@ import org.fanout.gripcontrol.*;
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import com.google.gson.*;
 
 public class GripControlTest {
     @Test
     public void testCreateHold() throws UnsupportedEncodingException {
+        JsonParser parser = new JsonParser();
         List<Channel> channels = new ArrayList<Channel>();
         channels.add(new Channel("chan1"));
         String hold = GripControl.createHold("mode", channels, null, 0);
-        assertEquals(hold, "{\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"}]}}");
+        JsonElement jsonElement1 = parser.parse("{\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"}]}}");
+        JsonElement jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         channels.add(new Channel("chan2", "prev-id"));
         hold = GripControl.createHold("mode", channels, null, 0);
-        assertEquals(hold, "{\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement1 = parser.parse("{\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         Response response = new Response("body");
         hold = GripControl.createHold("mode", channels, response, 0);
-        assertEquals(hold, "{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement1 = parser.parse("{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         hold = GripControl.createHold("mode", channels, response, 5);
-        assertEquals(hold, "{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}],\"timeout\":5}}");
+        jsonElement1 = parser.parse("{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"mode\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}],\"timeout\":5}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
     }
 
     @Test
     public void testCreateHoldResponse() throws UnsupportedEncodingException {
+        JsonParser parser = new JsonParser();
         List<Channel> channels = new ArrayList<Channel>();
         channels.add(new Channel("chan1"));
         String hold = GripControl.createHoldResponse(channels);
-        assertEquals(hold, "{\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"}]}}");
+        JsonElement jsonElement1 = parser.parse("{\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"}]}}");
+        JsonElement jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         channels.add(new Channel("chan2", "prev-id"));
         hold = GripControl.createHoldResponse(channels);
-        assertEquals(hold, "{\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement1 = parser.parse("{\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         Response response = new Response("body");
         hold = GripControl.createHoldResponse(channels, response);
-        assertEquals(hold, "{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement1 = parser.parse("{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         hold = GripControl.createHoldResponse(channels, response, 5);
-        assertEquals(hold, "{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}],\"timeout\":5}}");
+        jsonElement1 = parser.parse("{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"response\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}],\"timeout\":5}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
     }
 
     @Test
     public void testCreateHoldStream() throws UnsupportedEncodingException {
+        JsonParser parser = new JsonParser();
         List<Channel> channels = new ArrayList<Channel>();
         channels.add(new Channel("chan1"));
         String hold = GripControl.createHoldStream(channels);
-        assertEquals(hold, "{\"hold\":{\"mode\":\"stream\",\"channels\":[{\"name\":\"chan1\"}]}}");
+        JsonElement jsonElement1 = parser.parse("{\"hold\":{\"mode\":\"stream\",\"channels\":[{\"name\":\"chan1\"}]}}");
+        JsonElement jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         channels.add(new Channel("chan2", "prev-id"));
         hold = GripControl.createHoldStream(channels);
-        assertEquals(hold, "{\"hold\":{\"mode\":\"stream\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement1 = parser.parse("{\"hold\":{\"mode\":\"stream\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
         Response response = new Response("body");
         hold = GripControl.createHoldStream(channels, response);
-        assertEquals(hold, "{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"stream\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement1 = parser.parse("{\"response\":{\"body\":\"body\"},\"hold\":{\"mode\":\"stream\",\"channels\":[{\"name\":\"chan1\"},{\"name\":\"chan2\",\"prev-id\":\"prev-id\"}]}}");
+        jsonElement2 = parser.parse(hold);
+        assertEquals(jsonElement1, jsonElement2);
     }
 
     @Test
@@ -159,12 +185,6 @@ public class GripControlTest {
         assertEquals(events.size(), 1);
         assertEquals(events.get(0).type, "TEXT");
         assertEquals(events.get(0).content, "Hello");
-        /*assert_raises RuntimeError do
-          GripControl.decode_websocket_events("TEXT 5")
-        end
-        assert_raises RuntimeError do
-          GripControl.decode_websocket_events("OPEN\r\nTEXT")
-        end*/
     }
 
     @Test(expected=IllegalArgumentException.class)

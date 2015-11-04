@@ -20,7 +20,6 @@ public class HttpResponseFormatTest {
         format = new HttpResponseFormat(byteData);
         export = (Map<String, Object>)format.export();
         assertEquals(export.get("body-bin"), DatatypeConverter.printBase64Binary(byteData));
-
         Map<String, String> headers = new HashMap<String, String>();
         format = new HttpResponseFormat("body", headers, "code", "reason");
         assertEquals(format.name(), "http-response");
