@@ -151,13 +151,13 @@ public class GripControl {
         List<String> issQueryValue = params.get("iss");
         if (issQueryValue != null) {
             iss = issQueryValue.get(0);
-            issQueryValue.remove("iss");
+            params.remove("iss");
         }
         String key = "";
         List<String> keyQueryValue = params.get("key");
         if (keyQueryValue != null) {
             key = keyQueryValue.get(0);
-            keyQueryValue.remove("key");
+            params.remove("key");
         }
         if (key != null && key.startsWith("base64:"))
             key = new String(DatatypeConverter.parseBase64Binary(key.substring(7)));
@@ -172,7 +172,7 @@ public class GripControl {
         if (path.endsWith("/"))
             path = path.substring(0, path.length() - 1);
         String port = "";
-        if (url.getPort() != 80)
+        if (url.getPort() > -1 && url.getPort() != 80)
             port = ":" + Integer.toString(url.getPort());
         String controlUri = url.getProtocol() + "://" + url.getHost() + port + path;
         if (queryString != "")
