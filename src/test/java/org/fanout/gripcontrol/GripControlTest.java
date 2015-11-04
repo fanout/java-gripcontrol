@@ -104,7 +104,7 @@ public class GripControlTest {
     }
 
     @Test
-    public void testValidateSig() throws UnsupportedEncodingException, MalformedURLException {
+    public void testValidateSig() {
         String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOlsiT25saW5lIEpXVCBCdWlsZGVyIiwidGVzdGlzcy" +
                 "JdLCJpYXQiOjk3MzI5NTg4NSwiZXhwIjoyNTUxMDQ2Mjg1LCJhdWQiOiJ3d3cuZXhhbXBsZS5jb20iLCJzdWIiOiJq" +
                 "cm9ja2V0QGV4YW1wbGUuY29tIn0.Wmm-ulXbOun3egbdqmxjCqegyYu8Tr5MAaguie4rmTE";
@@ -120,5 +120,60 @@ public class GripControlTest {
                 "JzdWIiOiJqcm9ja2V0QGV4YW1wbGUuY29tIn0.W8e4mxvbMKuotkINOyZX5jDO7KFD-jpgPHbWNGV5CHQ";
         key = "a2V5";
         assertFalse(GripControl.validateSig(token, key));
+    }
+
+    @Test
+    public void testEncodeWebSocketEvents() {
+        List<WebSocketEvent> events = new ArrayList<WebSocketEvent>();
+        events.add(new WebSocketEvent("TEXT", "Hello"));
+        events.add(new WebSocketEvent("TEXT", ""));
+        events.add(new WebSocketEvent("TEXT"));
+        assertEquals(GripControl.encodeWebSocketEvents(events), "TEXT 5\r\nHello\r\nTEXT 0\r\n\r\nTEXT\r\n");
+        events = new ArrayList<WebSocketEvent>();
+        events.add(new WebSocketEvent("OPEN"));
+        assertEquals(GripControl.encodeWebSocketEvents(events), "OPEN\r\n");
+    }
+
+    @Test
+    public void testDecodeWebSocketEvents() throws IllegalArgumentException {
+        List<WebSocketEvent> events = GripControl.decodeWebSocketEvents("OPEN\r\nTEXT 5\r\nHello" +
+            "\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n");
+        assertEquals(events.size(), 6);
+        assertEquals(events.get(0).type, "OPEN");
+        assertEquals(events.get(0).content, null);
+        assertEquals(events.get(1).type, "TEXT");
+        assertEquals(events.get(1).content, "Hello");
+        assertEquals(events.get(2).type, "TEXT");
+        assertEquals(events.get(2).content, "");
+        assertEquals(events.get(3).type, "CLOSE");
+        assertEquals(events.get(3).content, null);
+        assertEquals(events.get(4).type, "TEXT");
+        assertEquals(events.get(4).content, null);
+        assertEquals(events.get(5).type, "CLOSE");
+        assertEquals(events.get(5).content, null);
+        events = GripControl.decodeWebSocketEvents("OPEN\r\n");
+        assertEquals(events.size(), 1);
+        assertEquals(events.get(0).type, "OPEN");
+        assertEquals(events.get(0).content, null);
+        events = GripControl.decodeWebSocketEvents("TEXT 5\r\nHello\r\n");
+        assertEquals(events.size(), 1);
+        assertEquals(events.get(0).type, "TEXT");
+        assertEquals(events.get(0).content, "Hello");
+        /*assert_raises RuntimeError do
+          GripControl.decode_websocket_events("TEXT 5")
+        end
+        assert_raises RuntimeError do
+          GripControl.decode_websocket_events("OPEN\r\nTEXT")
+        end*/
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testDecodeWebSocketEventsException1() throws IllegalArgumentException {
+        GripControl.decodeWebSocketEvents("TEXT 5");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testDecodeWebSocketEventsException2() throws IllegalArgumentException {
+        GripControl.decodeWebSocketEvents("OPEN\r\nTEXT");
     }
 }
