@@ -110,8 +110,97 @@ public class GripPubControlExample {
 }
 ```
 
-Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key is configurable in Pushpin's settings.
+Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key is configurable in Pushpin's settings. The key is passed in base64 encoded format.
 
 ```java
 boolean isValid = GripControl.validateSig(headers["Grip-Sig"], "<key>");
+```
+
+Long polling example via response _headers_ using the NanoHTTPD web server. The client connects to a GRIP proxy over HTTP and the proxy forwards the request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response _headers_. Note that with the recent versions of Apache it's not possible to send a 304 response containing custom headers, in which case the response body should be used instead (next usage example below).
+
+```java
+package com.example;
+
+import java.util.*;
+import java.io.IOException;
+import fi.iki.elonen.NanoHTTPD;
+import org.fanout.gripcontrol.*;
+import org.fanout.pubcontrol.*;
+
+public class App extends NanoHTTPD {
+
+    public App() throws IOException {
+        super(80);
+        start();
+    }
+
+    public static void main(String[] args) {
+        try {
+            new App();
+        }
+        catch (IOException exception) { }
+    }
+
+    @Override
+    public Response serve(IHTTPSession session) {
+        // Validate the Grip-Sig header:
+        if (!GripControl.validateSig(session.getHeaders().get("grip-sig"), "<key>"))
+            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null, "invalid grip-sig token");
+
+        // Instruct the client to long poll via the response headers:
+        List<Channel> channels = Arrays.asList(new Channel("<channel>"));
+        Response response = newFixedLengthResponse(Response.Status.OK, null, null);
+        response.addHeader("grip-hold", "response");
+        response.addHeader("grip-channel", GripControl.createGripChannelHeader(channels));
+
+        // To optionally set a timeout value in seconds:
+        // session.addHeader("grip-timeout", "<timeout_value>");
+
+        return response;
+    }
+}
+```
+
+Long polling example via response _body_ using the WEBrick gem. The client connects to a GRIP proxy over HTTP and the proxy forwards the request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response _body_.
+
+```java
+package com.example;
+
+import java.util.*;
+import java.io.IOException;
+import fi.iki.elonen.NanoHTTPD;
+import org.fanout.gripcontrol.*;
+import org.fanout.pubcontrol.*;
+
+public class App extends NanoHTTPD {
+
+    public App() throws IOException {
+        super(80);
+        start();
+    }
+
+    public static void main(String[] args) {
+        try {
+            new App();
+        }
+        catch (IOException exception) { }
+    }
+
+    @Override
+    public Response serve(IHTTPSession session) {
+        // Validate the Grip-Sig header with a base64 encoded key:
+        if (!GripControl.validateSig(session.getHeaders().get("grip-sig"), "<key>"))
+            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null, "invalid grip-sig token");
+
+        // Instruct the client to long poll via the response body:
+        List<Channel> channels = Arrays.asList(new Channel("<channel>"));
+        String holdResponse = GripControl.createHoldResponse(channels);
+        // To optionally set a timeout value in seconds:
+        // String holdResponse = GripControl.createHoldResponse(channels, null, <timeout_value>);
+        Response response = newFixedLengthResponse(Response.Status.OK, null, holdResponse);
+        response.addHeader("content-type", "application/grip-instruct");
+
+        return response;
+    }
+}
 ```
