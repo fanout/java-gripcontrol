@@ -93,7 +93,7 @@ public class GripPubControlExample {
 
         // Publish across all configured endpoints:
         List<String> channels = new ArrayList<String>();
-        channels.add("test_channel");
+        channels.add("<channel>");
         try {
             pub.publishHttpResponse(channels, "Test publish!");
             pub.publishHttpStream(channels, "Test publish!");
@@ -145,7 +145,8 @@ public class App extends NanoHTTPD {
     public Response serve(IHTTPSession session) {
         // Validate the Grip-Sig header:
         if (!GripControl.validateSig(session.getHeaders().get("grip-sig"), "<key>"))
-            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null, "invalid grip-sig token");
+            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null,
+                    "invalid grip-sig token");
 
         // Instruct the client to long poll via the response headers:
         List<Channel> channels = Arrays.asList(new Channel("<channel>"));
@@ -161,7 +162,7 @@ public class App extends NanoHTTPD {
 }
 ```
 
-Long polling example via response _body_ using the WEBrick gem. The client connects to a GRIP proxy over HTTP and the proxy forwards the request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response _body_.
+Long polling example via response _body_ using the NanoHTTPD web server. The client connects to a GRIP proxy over HTTP and the proxy forwards the request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response _body_.
 
 ```java
 package com.example;
@@ -190,13 +191,14 @@ public class App extends NanoHTTPD {
     public Response serve(IHTTPSession session) {
         // Validate the Grip-Sig header with a base64 encoded key:
         if (!GripControl.validateSig(session.getHeaders().get("grip-sig"), "<key>"))
-            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null, "invalid grip-sig token");
+            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null,
+                    "invalid grip-sig token");
 
         // Instruct the client to long poll via the response body:
         List<Channel> channels = Arrays.asList(new Channel("<channel>"));
         String holdResponse = GripControl.createHoldResponse(channels);
         // To optionally set a timeout value in seconds:
-        // String holdResponse = GripControl.createHoldResponse(channels, null, <timeout_value>);
+        // holdResponse = GripControl.createHoldResponse(channels, null, <timeout_value>);
         Response response = newFixedLengthResponse(Response.Status.OK, null, holdResponse);
         response.addHeader("content-type", "application/grip-instruct");
 
