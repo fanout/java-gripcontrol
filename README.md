@@ -153,7 +153,6 @@ public class App extends NanoHTTPD {
         Response response = newFixedLengthResponse(Response.Status.OK, null, null);
         response.addHeader("grip-hold", "response");
         response.addHeader("grip-channel", GripControl.createGripChannelHeader(channels));
-
         // To optionally set a timeout value in seconds:
         // session.addHeader("grip-timeout", "<timeout_value>");
 
