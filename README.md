@@ -205,3 +205,116 @@ public class App extends NanoHTTPD {
     }
 }
 ```
+
+WebSocket example using the NanoHTTPD web server. A client connects to a GRIP proxy via WebSockets and the proxy forward the request to the origin. The origin accepts the connection over a WebSocket and responds with a control message indicating that the client should be subscribed to a channel. Note that in order for the GRIP proxy to properly interpret the control messages, the origin must provide a 'grip' extension in the 'Sec-WebSocket-Extensions' header. This is accomplished in the NanoHTTPD server by overriding the serve(IHTTPSession) method.
+
+```java
+package com.example;
+
+import java.util.*;
+import java.io.IOException;
+import fi.iki.elonen.*;
+import fi.iki.elonen.NanoWSD.WebSocketFrame.*;
+import org.fanout.gripcontrol.*;
+import org.fanout.pubcontrol.*;
+import java.lang.Thread;
+import java.lang.InterruptedException;
+
+public class App extends NanoWSD {
+
+    public App() throws IOException {
+        super(80);
+        start();
+    }
+
+    public static void main(String[] args) {
+        try {
+            new App();
+        }
+        catch (IOException exception) { }
+    }
+
+    // Override the serve method to ensure that the 'Sec-WebSocket-Extensions' header is sent to the client:
+    @Override
+    public Response serve(final IHTTPSession session) {
+        Response response = super.serve(session);
+        response.addHeader("Sec-WebSocket-Extensions", "grip; message-prefix=\"\"");
+        return response;
+    }
+
+	@Override
+	protected WebSocket openWebSocket(IHTTPSession handshake) {
+		return new GripWebSocket(this, handshake);
+	}
+
+	private static class GripWebSocket extends WebSocket {
+		private final App server;
+
+		public GripWebSocket(App server, IHTTPSession handshakeRequest) {
+			super(handshakeRequest);
+			this.server = server;
+		}
+
+		@Override
+		protected void onOpen() {
+            // Create channel hash map:
+            Map<String, Object> channel = new HashMap<String, Object>();
+            channel.put("channel", "<channel>");
+
+            // Subscribe the WebSocket to a channel:
+            try {
+                send("c:" + GripControl.webSocketControlMessage("subscribe", channel));
+            } catch (IOException exception) { }
+
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException exception) { }
+
+            // Publish a message to the subscribed channel.
+            List<Map<String, Object>> config = new ArrayList<Map<String, Object>>();
+            HashMap<String, Object> entry = new HashMap<String, Object>();
+            entry.put("control_uri", "<myendpoint_url>");
+            config.add(entry);
+            GripPubControl pub = new GripPubControl(config);
+
+            List<String> channels = new ArrayList<String>();
+            channels.add("<channel>");
+
+            List<Format> formats = new ArrayList<Format>();
+            formats.add(new WebSocketMessageFormat("WebSocket test publish!"));
+
+            try {
+                pub.publish(channels, new Item(formats, null, null));
+            } catch (PublishFailedException exception) {
+                System.err.println("Publish failed: " + exception);
+            }
+        }
+
+		@Override
+		protected void onClose(CloseCode code, String reason, boolean initiatedByRemote) { }
+
+		@Override
+		protected void onMessage(WebSocketFrame message) { }
+
+		@Override
+		protected void onPong(WebSocketFrame pong) { }
+
+		@Override
+		protected void onException(IOException exception) { }
+	}
+}
+```
+
+WebSocket over HTTP example using the NanoHTTPD web server. In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
+
+```java
+```
+
+Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a map containing 'control_uri', 'control_iss', and 'key' keys.
+
+```java
+ Map<String, Object> config = GripControl.parseGripUri(
+        "http://api.fanout.io/realm/<myrealm>?iss=<myrealm>" +
+        "&key=base64:<myrealmkey>")
+```
