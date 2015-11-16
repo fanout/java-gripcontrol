@@ -234,7 +234,7 @@ public class App extends NanoWSD {
         catch (IOException exception) { }
     }
 
-    // Override the serve method to ensure that the 'Sec-WebSocket-Extensions' header is sent to the client:
+    // Override the serve method to ensure that the 'Sec-WebSocket-Extensions' header is sent:
     @Override
     public Response serve(final IHTTPSession session) {
         Response response = super.serve(session);
@@ -271,19 +271,13 @@ public class App extends NanoWSD {
             }
             catch (InterruptedException exception) { }
 
-            // Publish a message to the subscribed channel.
-            List<Map<String, Object>> config = new ArrayList<Map<String, Object>>();
-            HashMap<String, Object> entry = new HashMap<String, Object>();
+            // Publish a message to the subscribed channel:
+            Map<String, Object> entry = new HashMap<String, Object>();
             entry.put("control_uri", "<myendpoint_url>");
-            config.add(entry);
+            List<Map<String, Object>> config = Arrays.asList(entry);
             GripPubControl pub = new GripPubControl(config);
-
-            List<String> channels = new ArrayList<String>();
-            channels.add("<channel>");
-
-            List<Format> formats = new ArrayList<Format>();
-            formats.add(new WebSocketMessageFormat("WebSocket test publish!"));
-
+            List<String> channels = Arrays.asList("<channel>");
+            List<Format> formats = Arrays.asList((Format)new WebSocketMessageFormat("WebSocket test publish!"));
             try {
                 pub.publish(channels, new Item(formats, null, null));
             } catch (PublishFailedException exception) {
@@ -309,6 +303,99 @@ public class App extends NanoWSD {
 WebSocket over HTTP example using the NanoHTTPD web server. In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
 
 ```java
+package com.example;
+
+import java.util.*;
+import java.io.IOException;
+import fi.iki.elonen.*;
+import org.fanout.gripcontrol.*;
+import org.fanout.pubcontrol.*;
+import java.lang.Thread;
+
+public class App extends NanoHTTPD {
+
+    public App() throws IOException {
+        super(80);
+        start();
+    }
+
+    public static void main(String[] args) {
+        try {
+            new App();
+        }
+        catch (IOException exception) { }
+    }
+
+    // A helper class for publishing a message on a separate thread:
+    private class PublishMessage implements Runnable {
+        public void run() {
+            Map<String, Object> entry = new HashMap<String, Object>();
+            entry.put("control_uri", "<myendpoint_uri>");
+            List<Map<String, Object>> config = Arrays.asList(entry);
+            GripPubControl pub = new GripPubControl(config);
+            List<String> channels = Arrays.asList("<channel>");
+            List<Format> formats = Arrays.asList(
+                    (Format)new WebSocketMessageFormat("WebSocket test publish!"));
+            try {
+                pub.publish(channels, new Item(formats, null, null));
+            } catch (PublishFailedException exception) {
+                System.err.println("Publish failed: " + exception);
+            }
+        }
+    }
+
+    @Override
+    public Response serve(IHTTPSession session) {
+        // Validate the Grip-Sig header with a base64 encoded key:
+        if (!GripControl.validateSig(session.getHeaders().get("grip-sig"), "<key>"))
+            return newFixedLengthResponse(Response.Status.UNAUTHORIZED, null, "invalid grip-sig token");
+
+        // Only allow the POST method:
+        Method method = session.getMethod();
+        if (!Method.POST.equals(method))
+            return newFixedLengthResponse(Response.Status.METHOD_NOT_ALLOWED, null, null);
+
+        // Parse the request body:
+        Map<String, String> body = new HashMap<String, String>();
+        try {
+            session.parseBody(body);
+        } catch (IOException exception) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, null, null);
+        } catch (ResponseException exception) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, null, null);
+        }
+
+        // Decode the WebSocket events.
+        // Note: appending a new line is required because NanoHTTPD automatically
+        // trims whitespace from the post data.
+        List<WebSocketEvent> inEvents = GripControl.decodeWebSocketEvents(body.get("postData") + "\r\n");
+
+        String responseBody = "";
+        if (inEvents != null && inEvents.size() > 0 && inEvents.get(0).type.equals("OPEN")) {
+            // Create channel hash map:
+            Map<String, Object> channel = new HashMap<String, Object>();
+            channel.put("channel", "<channel>");
+
+            // Open the WebSocket and subscribe it to a channel:
+            List<WebSocketEvent> outEvents = new ArrayList<WebSocketEvent>();
+            outEvents.add(new WebSocketEvent("OPEN"));
+            outEvents.add(new WebSocketEvent("TEXT", "c:" +
+                    GripControl.webSocketControlMessage("subscribe", channel)));
+            responseBody = GripControl.encodeWebSocketEvents(outEvents);
+
+            // Publish a message to the subscribed channel:
+            new Thread(new PublishMessage()).start();
+        }
+
+        Response response = newFixedLengthResponse(Response.Status.OK, null, responseBody);
+
+        // Set the headers required by the GRIP proxy:
+        response.addHeader("content-type", "application/websocket-events");
+        response.addHeader("sec-websocket-extensions", "grip; message-prefix=\"\"");
+
+        return response;
+    }
+}
 ```
 
 Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a map containing 'control_uri', 'control_iss', and 'key' keys.
