@@ -329,6 +329,7 @@ public class App extends NanoHTTPD {
     // A helper class for publishing a message on a separate thread:
     private class PublishMessage implements Runnable {
         public void run() {
+            Thread.sleep(1000);
             Map<String, Object> entry = new HashMap<String, Object>();
             entry.put("control_uri", "<myendpoint_uri>");
             List<Map<String, Object>> config = Arrays.asList(entry);
