@@ -7,18 +7,13 @@
 
 package org.fanout.gripcontrol;
 
-import java.net.*;
-import java.util.*;
-import org.fanout.pubcontrol.*;
+import com.google.gson.Gson;
+import io.jsonwebtoken.Jwts;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import com.google.gson.Gson;
-import javax.xml.bind.DatatypeConverter;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.crypto.MacProvider;
-import java.lang.IllegalArgumentException;
+import java.net.*;
+import java.util.*;
 
 /**
  * This class and its features are used in conjunction with GRIP proxies.
@@ -224,21 +219,25 @@ public class GripControl {
      * A RuntimeError is raised if the format is invalid.
      */
     public static List<WebSocketEvent> decodeWebSocketEvents(String body) {
-        List<WebSocketEvent> events = new ArrayList<WebSocketEvent>();
-        int start = 0;
-        while (start < body.length()) {
-            int at = body.indexOf("\r\n", start);
+        List<WebSocketEvent> events = new ArrayList<>();
+        int stringOffset = 0;
+        int byteOffset = 0;
+        byte[] bytes = body.getBytes();
+        while (stringOffset < body.length()) {
+            int at = body.indexOf("\r\n", stringOffset);
             if (at == -1)
                 throw new IllegalArgumentException("bad format");
-            String typeline = body.substring(start, at);
-            start = at + 2;
+            String typeline = body.substring(stringOffset, at);
+            stringOffset = at + 2;
+            byteOffset += typeline.length() + 2;
             at = typeline.indexOf(" ");
-            WebSocketEvent event = null;
+            WebSocketEvent event;
             if (at >= 0) {
                 String etype = typeline.substring(0, at);
-                int clen = Integer.parseInt(typeline.substring(at + 1, typeline.length()), 16);
-                String content = body.substring(start, start + clen);
-                start += clen + 2;
+                int clen = Integer.parseInt(typeline.substring(at + 1), 16);
+                String content = new String(bytes, byteOffset, clen);
+                stringOffset += content.length() + 2;
+                byteOffset += clen + 2;
                 event = new WebSocketEvent(etype, content);
             } else {
                 event = new WebSocketEvent(typeline);
