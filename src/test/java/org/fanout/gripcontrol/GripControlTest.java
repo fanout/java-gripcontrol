@@ -1,12 +1,14 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
+package org.fanout.gripcontrol;
 
-import java.util.*;
-import org.fanout.gripcontrol.*;
-import javax.xml.bind.DatatypeConverter;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import org.junit.Test;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import com.google.gson.*;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public class GripControlTest {
     @Test

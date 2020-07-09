@@ -1,7 +1,7 @@
+package org.fanout.gripcontrol;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
-
-import org.fanout.gripcontrol.*;
 
 public class ChannelTest {
     @Test

@@ -1,11 +1,12 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
+package org.fanout.gripcontrol;
 
-import java.util.*;
-import org.fanout.gripcontrol.*;
+import org.junit.Test;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
-import java.lang.IllegalArgumentException;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class HttpStreamFormatTest {
     @Test
