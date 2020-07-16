@@ -7,6 +7,10 @@
   <name>gripcontrol</name>
   <description>GRIP library for Java.</description>
   <url>https://github.com/fanout/java-gripcontrol</url>
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
   <scm>
     <connection>scm:git:git@github.com:fanout/java-gripcontrol.git</connection>
     <developerConnection>scm:git:git@github.com:fanout/java-gripcontrol.git</developerConnection>
@@ -29,10 +33,20 @@
   </licenses>
   <dependencies>
     <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.3.0</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.21</version>
     </dependency>
     <dependency>
       <groupId>org.fanout</groupId>
