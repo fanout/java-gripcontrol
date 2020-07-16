@@ -248,6 +248,14 @@ public class GripControl {
     }
 
     /**
+     * Decode the request body into an array of WebSocketEvent instances.
+     * A RuntimeError is raised if the format is invalid.
+     */
+    public static List<WebSocketEvent> decodeWebSocketEvents(byte[] bytes) {
+        return null;
+    }
+
+    /**
      * Get an array of hashes representing the specified channels parameter.
      * The resulting array is used for creating GRIP proxy hold instructions.
      */
