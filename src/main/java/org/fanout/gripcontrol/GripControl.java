@@ -217,26 +217,43 @@ public class GripControl {
     /**
      * Decode the request body into an array of WebSocketEvent instances.
      * A RuntimeError is raised if the format is invalid.
+     * @param body a String representing the request body.
      */
     public static List<WebSocketEvent> decodeWebSocketEvents(String body) {
-        List<WebSocketEvent> events = new ArrayList<>();
-        int stringOffset = 0;
-        int byteOffset = 0;
         byte[] bytes = body.getBytes();
-        while (stringOffset < body.length()) {
-            int at = body.indexOf("\r\n", stringOffset);
-            if (at == -1)
+        return decodeWebSocketEvents(bytes);
+    }
+
+    /**
+     * Decode the request body into an array of WebSocketEvent instances.
+     * A RuntimeError is raised if the format is invalid.
+     * @param bytes a byte array representing the request body. This is expected
+     *              to be encoded as UTF-8
+     */
+    public static List<WebSocketEvent> decodeWebSocketEvents(byte[] bytes) {
+        List<WebSocketEvent> events = new ArrayList<>();
+        int byteOffset = 0;
+        while (byteOffset < bytes.length) {
+            // find \r followed by \n
+            int at = -1;
+            for (int i = byteOffset; i < bytes.length - 1; i++) {
+                if (bytes[i] == '\r' && bytes[i+1] == '\n') {
+                    at = i;
+                    break;
+                }
+            }
+            if (at == -1) {
                 throw new IllegalArgumentException("bad format");
-            String typeline = body.substring(stringOffset, at);
-            stringOffset = at + 2;
-            byteOffset += typeline.length() + 2;
-            at = typeline.indexOf(" ");
+            }
+            String typeline = new String(bytes, byteOffset, at - byteOffset);
+            byteOffset = at + 2;
+
             WebSocketEvent event;
+            at = typeline.indexOf(" ");
             if (at >= 0) {
                 String etype = typeline.substring(0, at);
                 int clen = Integer.parseInt(typeline.substring(at + 1), 16);
                 String content = new String(bytes, byteOffset, clen);
-                stringOffset += content.length() + 2;
                 byteOffset += clen + 2;
                 event = new WebSocketEvent(etype, content);
             } else {
@@ -245,14 +262,6 @@ public class GripControl {
             events.add(event);
         }
         return events;
-    }
-
-    /**
-     * Decode the request body into an array of WebSocketEvent instances.
-     * A RuntimeError is raised if the format is invalid.
-     */
-    public static List<WebSocketEvent> decodeWebSocketEvents(byte[] bytes) {
-        return null;
     }
 
     /**
