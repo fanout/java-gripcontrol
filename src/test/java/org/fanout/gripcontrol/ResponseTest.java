@@ -1,9 +1,12 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
+package org.fanout.gripcontrol;
 
-import java.util.*;
-import org.fanout.gripcontrol.*;
+import org.junit.Test;
+
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResponseTest {
     @Test

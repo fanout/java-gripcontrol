@@ -1,10 +1,11 @@
+package org.fanout.gripcontrol;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import org.fanout.gripcontrol.*;
-import java.net.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UtilitiesTest {
     private static final byte[][] byteTests = {
