@@ -206,7 +206,7 @@ public class GripControl {
         for (WebSocketEvent event : webSocketEvents) {
             out = out + event.type;
             if (event.content != null)
-                out = out + " " + Integer.toString(event.content.length(), 16) + "\r\n" + event.content + "\r\n";
+                out = out + " " + Integer.toString(event.content.getBytes().length, 16) + "\r\n" + event.content + "\r\n";
             else {
                 out = out + "\r\n";
             }
