@@ -163,6 +163,25 @@ public class GripControlTest {
     }
 
     @Test
+    public void testEncodeWebSocketEventsUnicode() {
+        List<WebSocketEvent> events = new ArrayList<WebSocketEvent>();
+        events.add(new WebSocketEvent("TEXT", "😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל"));
+        assertEquals(GripControl.encodeWebSocketEvents(events), "TEXT 69\r\n😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל\r\n");
+
+        events = new ArrayList<WebSocketEvent>();
+        events.add(new WebSocketEvent("TEXT", "😀 Grinning Face.\n😃 Grinning Face with Big Eyes.\n😄 Grinning Face with Smiling Eyes.\n😁 Beaming Face with Smiling Eyes.\n😆 Grinning Squinting Face.\n😅 Grinning Face with Sweat.\n🤣 Rolling on the Floor Laughing.\n😂 Face with Tears of Joy."));
+        assertEquals(GripControl.encodeWebSocketEvents(events), "TEXT fe\r\n😀 Grinning Face.\n😃 Grinning Face with Big Eyes.\n😄 Grinning Face with Smiling Eyes.\n😁 Beaming Face with Smiling Eyes.\n😆 Grinning Squinting Face.\n😅 Grinning Face with Sweat.\n🤣 Rolling on the Floor Laughing.\n😂 Face with Tears of Joy.\r\n");
+
+        events = new ArrayList<WebSocketEvent>();
+        events.add(new WebSocketEvent("TEXT", "😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל"));
+        events.add(new WebSocketEvent("TEXT", "😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל"));
+        events.add(new WebSocketEvent("TEXT", "😀 Grinning Face.\n😃 Grinning Face with Big Eyes.\n😄 Grinning Face with Smiling Eyes.\n😁 Beaming Face with Smiling Eyes.\n😆 Grinning Squinting Face.\n😅 Grinning Face with Sweat.\n🤣 Rolling on the Floor Laughing.\n😂 Face with Tears of Joy."));
+        events.add(new WebSocketEvent("TEXT", "😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל"));
+        events.add(new WebSocketEvent("TEXT", "😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל"));
+        assertEquals(GripControl.encodeWebSocketEvents(events), "TEXT 69\r\n😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל\r\nTEXT 69\r\n😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל\r\nTEXT fe\r\n😀 Grinning Face.\n😃 Grinning Face with Big Eyes.\n😄 Grinning Face with Smiling Eyes.\n😁 Beaming Face with Smiling Eyes.\n😆 Grinning Squinting Face.\n😅 Grinning Face with Sweat.\n🤣 Rolling on the Floor Laughing.\n😂 Face with Tears of Joy.\r\nTEXT 69\r\n😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל\r\nTEXT 69\r\n😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל\r\n");
+    }
+
+    @Test
     public void testDecodeWebSocketEvents() throws IllegalArgumentException {
         List<WebSocketEvent> events = GripControl.decodeWebSocketEvents("OPEN\r\nTEXT 5\r\nHello" +
             "\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n");
