@@ -7,10 +7,6 @@
   <name>gripcontrol</name>
   <description>GRIP library for Java.</description>
   <url>https://github.com/fanout/java-gripcontrol</url>
-  <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
   <scm>
     <connection>scm:git:git@github.com:fanout/java-gripcontrol.git</connection>
     <developerConnection>scm:git:git@github.com:fanout/java-gripcontrol.git</developerConnection>
@@ -35,18 +31,18 @@
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
-      <version>2.3.0</version>
+      <version>2.3.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>4.13</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>1.7.21</version>
+      <version>1.7.30</version>
     </dependency>
     <dependency>
       <groupId>org.fanout</groupId>
@@ -56,35 +52,41 @@
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt</artifactId>
-      <version>0.5.1</version>
+      <version>0.9.1</version>
     </dependency>
   </dependencies>
   <distributionManagement>
 	<snapshotRepository>
-		<id>sonatype-nexus-snapshots</id>
-		<name>Sonatype Nexus snapshot repository</name>
-		<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus snapshot repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
 	</snapshotRepository>
 	<repository>
-		<id>sonatype-nexus-staging</id>
-		<name>Sonatype Nexus release repository</name>
-		<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>sonatype-nexus-staging</id>
+      <name>Sonatype Nexus release repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 	</repository>
   </distributionManagement>
   <build>
     <plugins>
       <plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-release-plugin</artifactId>
-	    <version>2.2.2</version>
-	    <configuration>
-		  <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
-    	</configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
+        <version>3.0.0-M3</version>
         <executions>
           <execution>
             <id>enforce-java</id>
@@ -100,6 +102,19 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.0.0-M1</version>
+      </plugin>
+      <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-release-plugin</artifactId>
+	    <version>3.0.0-M1</version>
+	    <configuration>
+		  <arguments>-Dgpg.keyname=${gpg.keyName} -Dgpg.passphrase=${gpg.passphrase}</arguments>
+    	</configuration>
       </plugin>
     </plugins>
   </build>
@@ -117,6 +132,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
+            <version>3.2.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -129,8 +145,9 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.2.0</version>
             <configuration>
-              <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+              <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
             </configuration>
             <executions>
               <execution>
@@ -144,8 +161,9 @@
 	      <plugin>
 	        <groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-gpg-plugin</artifactId>
-			<version>1.4</version>
+			<version>1.6</version>
 			<configuration>
+			  <keyname>${gpg.keyName}</keyname>
 			  <passphrase>${gpg.passphrase}</passphrase>
 			</configuration>
 			<executions>
