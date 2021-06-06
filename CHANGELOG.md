@@ -4,5 +4,7 @@
       - Initial Release
 1.1.0 (Jul 15 2020)
       - decodeWebSocketEvents() now supports Unicode events
-      - decodeWebSocketEvents() overload that accepts byte array
-      
+      - decodeWebSocketEvents() overload that accepts byte array 
+1.2.0 (May 6 2021)
+      - breaking: WebSocketEvents content now final. Use a new instance.
+      - encodeWebSocketEventsBinary() to generate a binary version of encoded websocket.

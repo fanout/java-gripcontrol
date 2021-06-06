@@ -33,6 +33,8 @@ You will need to create a `settings.xml` file at M2_HOME that provides the follo
 </settings>
 ```
 
+Increment the pom.xml <version> tag to the SNAPSHOT of the version to release.
+
 After doing so, you should be able to release to Maven using the commands
 
 ```shell script
