@@ -209,6 +209,31 @@ public class GripControlTest {
     }
 
     @Test
+    public void testDecodeWebSocketEventsBinary() {
+
+        byte[] pingBytes = new byte[] {
+            'P', 'I', 'N', 'G', ' ', '4', '\r', '\n', (byte)0x1b, (byte)0x88, (byte)0xf4, (byte)0xee, '\r', '\n',
+        };
+
+        byte[] eventsBytes = new byte[] {
+            'O', 'P', 'E', 'N', '\r', '\n',
+            'T', 'E', 'X', 'T', ' ', '5', '\r', '\n', 'H', 'e', 'l', 'l', 'o', '\r', '\n',
+            'T', 'E', 'X', 'T', ' ', '0', '\r', '\n', '\r', '\n',
+            'C', 'L', 'O', 'S', 'E', '\r', '\n',
+            'T', 'E', 'X', 'T', '\r', '\n',
+            'C', 'L', 'O', 'S', 'E', '\r', '\n',
+        };
+
+        List<WebSocketEvent> events = GripControl.decodeWebSocketEvents(pingBytes);
+        byte[] reencoded = GripControl.encodeWebSocketEventsBinary(events);
+        assertArrayEquals( pingBytes, reencoded );
+
+        events = GripControl.decodeWebSocketEvents(eventsBytes);
+        reencoded = GripControl.encodeWebSocketEventsBinary(events);
+        assertArrayEquals( eventsBytes, reencoded );
+    }
+
+    @Test
     public void testDecodeWebSocketEventsUnicode() {
         List<WebSocketEvent> events = GripControl.decodeWebSocketEvents("TEXT 69\r\n😍Smiling Face with Heart-Shaped Eyes☼Sun✂︎Scissors💖Heart⛺️sunset🇮🇱דגל ישראל\r\n");
         assertEquals(events.size(), 1);

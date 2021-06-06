@@ -11,8 +11,11 @@ import com.google.gson.Gson;
 import io.jsonwebtoken.Jwts;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -212,6 +215,34 @@ public class GripControl {
             }
         }
         return out;
+    }
+
+    /**
+     * Encode the specified array of WebSocketEvent instances as a byte array.
+     * The returned string value should then be passed to a GRIP proxy in the
+     * body of an HTTP response when using the WebSocket-over-HTTP protocol.
+     */
+    public static byte[] encodeWebSocketEventsBinary(List<WebSocketEvent> webSocketEvents) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            for (WebSocketEvent event : webSocketEvents) {
+                out.write(event.type.getBytes(StandardCharsets.UTF_8));
+
+                if (event.contentBytes != null) {
+                    out.write(' ');
+                    out.write(
+                        Integer.toString(event.contentBytes.length, 16).getBytes(StandardCharsets.UTF_8)
+                    );
+                    out.write(new byte[]{'\r', '\n'});
+                    out.write(event.contentBytes);
+                }
+                out.write(new byte[]{'\r', '\n'});
+            }
+        } catch (IOException ex) {
+            //
+        }
+        return out.toByteArray();
     }
 
     /**
