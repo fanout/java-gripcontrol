@@ -253,9 +253,9 @@ public class GripControl {
             if (at >= 0) {
                 String etype = typeline.substring(0, at);
                 int clen = Integer.parseInt(typeline.substring(at + 1), 16);
-                String content = new String(bytes, byteOffset, clen);
+                byte[] byteSegment = Arrays.copyOfRange(bytes, byteOffset, byteOffset + clen);
                 byteOffset += clen + 2;
-                event = new WebSocketEvent(etype, content);
+                event = new WebSocketEvent(etype, byteSegment);
             } else {
                 event = new WebSocketEvent(typeline);
             }
