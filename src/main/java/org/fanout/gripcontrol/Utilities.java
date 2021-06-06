@@ -7,6 +7,11 @@
 
 package org.fanout.gripcontrol;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.net.*;
 import java.io.UnsupportedEncodingException;
@@ -15,47 +20,39 @@ import java.io.UnsupportedEncodingException;
  * Static utilities used with the GRIP features.
  */
 public class Utilities {
+
+    public static String utf8BytesToString(byte[] bytes) {
+        String asString;
+        try {
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
+            CharBuffer charBuffer = decoder.decode(buffer);
+            asString = charBuffer.toString();
+        } catch(CharacterCodingException ex) {
+            asString = null;
+        }
+
+        return asString;
+    }
+
     /**
      * Returns the number of UTF-8 characters.
      */
     public static int charLength(byte[] bytes) {
-        int charCount = 0, expectedLen;
+        String asString = utf8BytesToString(bytes);
 
-        for (int i = 0; i < bytes.length; i++) {
-            charCount++;
-            if ((bytes[i] & Integer.parseInt("10000000", 2)) == Integer.parseInt("00000000", 2)) {
-                continue;
-            } else if ((bytes[i] & Integer.parseInt("11100000", 2)) == Integer.parseInt("11000000", 2)) {
-                expectedLen = 2;
-            } else if ((bytes[i] & Integer.parseInt("11110000", 2)) == Integer.parseInt("11100000", 2)) {
-                expectedLen = 3;
-            } else if ((bytes[i] & Integer.parseInt("11111000", 2)) == Integer.parseInt("11110000", 2)) {
-                expectedLen = 4;
-            } else if ((bytes[i] & Integer.parseInt("11111100", 2)) == Integer.parseInt("11111000", 2)) {
-                expectedLen = 5;
-            } else if ((bytes[i] & Integer.parseInt("11111110", 2)) == Integer.parseInt("11111100", 2)) {
-                expectedLen = 6;
-            } else {
-                return -1;
-            }
-
-            while (--expectedLen > 0) {
-                if (++i >= bytes.length) {
-                    return -1;
-                }
-                if ((bytes[i] & Integer.parseInt("11000000", 2)) != Integer.parseInt("10000000", 2)) {
-                    return -1;
-                }
-            }
+        if (asString == null) {
+            return -1;
         }
-        return charCount;
+
+        return asString.length();
     }
 
     /**
      * Validate a UTF-8 byte array.
      */
     public static boolean isUtf8(byte[] bytes) {
-        return (charLength(bytes) != -1);
+        return utf8BytesToString(bytes) != null;
     }
 
     /**

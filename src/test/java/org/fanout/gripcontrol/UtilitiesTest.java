@@ -4,8 +4,7 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class UtilitiesTest {
     private static final byte[][] byteTests = {
@@ -25,8 +24,18 @@ public class UtilitiesTest {
     private static final String[] stringTests = {
         "A",
         "Z",
-        "A valid UTF8 string"
+        "A valid UTF8 string",
+        "emojis 😀😃😄😁😆😅🤣😂😍☼✂💖⛺",
     };
+
+    @Test
+    public void testDecodeUtf8String() {
+
+        assertEquals( Utilities.utf8BytesToString( new byte[] { 0x48, 0x65, 0x6c, 0x6c, 0x6f, } ), "Hello" );
+        assertEquals( Utilities.utf8BytesToString( new byte[] { (byte) 0xc3, (byte) 0xb1, } ), "ñ" );
+        assertNull(Utilities.utf8BytesToString(new byte[]{(byte) 0xc3, (byte) 0x28,}));
+
+    }
 
     @Test
     public void testValidate() {
