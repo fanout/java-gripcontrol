@@ -3,7 +3,7 @@
   <groupId>org.fanout</groupId>
   <artifactId>gripcontrol</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.0</version>
+  <version>1.2.1-SNAPSHOT</version>
   <name>gripcontrol</name>
   <description>GRIP library for Java.</description>
   <url>https://github.com/fanout/java-gripcontrol</url>
