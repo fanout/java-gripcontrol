@@ -58,7 +58,7 @@ public class GripPubControl extends PubControl {
                claims.put("iss", (String)iss);
                client.setAuthJwt(claims, (byte[])key);
            } else if (key != null) {
-               client.setAuthBearer((byte[])key);
+               client.setAuthBearer(key);
            }
            super.addClient(client);
        }
