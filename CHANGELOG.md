@@ -8,3 +8,5 @@
 1.2.0 (May 6 2021)
       - breaking: WebSocketEvents content now final. Use a new instance.
       - encodeWebSocketEventsBinary() to generate a binary version of encoded websocket.
+1.2.1
+      - add support for bearer tokens
