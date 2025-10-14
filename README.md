@@ -21,12 +21,12 @@ Maven:
 <dependency>
   <groupId>org.fanout</groupId>
   <artifactId>gripcontrol</artifactId>
-  <version>1.0.0</version>
+  <version>1.2.1</version>
 </dependency>
 <dependency>
   <groupId>org.fanout</groupId>
   <artifactId>pubcontrol</artifactId>
-  <version>1.0.7</version>
+  <version>1.0.8</version>
 </dependency>
 ```
 
