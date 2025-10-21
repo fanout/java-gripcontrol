@@ -66,9 +66,9 @@ public class GripPubControlExample {
         // Initialize PubControl with a single endpoint:
         List<Map<String, Object>> config = new ArrayList<Map<String, Object>>();
         Map<String, Object> entry = new HashMap<String, Object>();
-        entry.put("control_uri", "https://api.fanout.io/realm/<realm>");
-        entry.put("control_iss", "<realm>");
-        entry.put("key", DatatypeConverter.parseBase64Binary("<key>"));
+        entry.put("control_uri", "https://api.fastly.com/service/<service-id>");
+        // The API token needs to have purge permission
+        entry.put("key", "<fastly-api-token>");
         config.add(entry);
         GripPubControl pub = new GripPubControl(config);
 
@@ -110,7 +110,7 @@ public class GripPubControlExample {
 }
 ```
 
-Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key is configurable in Pushpin's settings. The key is passed in base64 encoded format.
+Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid source and is not expired. When using Pushpin the key is configurable in Pushpin's settings. The key is passed in base64 encoded format (Fastly Fanout support is forthcoming).
 
 ```java
 boolean isValid = GripControl.validateSig(headers["Grip-Sig"], "<key>");
@@ -403,6 +403,5 @@ Parse a GRIP URI to extract the URI, ISS, and key values. The values will be ret
 
 ```java
  Map<String, Object> config = GripControl.parseGripUri(
-        "http://api.fanout.io/realm/<myrealm>?iss=<myrealm>" +
-        "&key=base64:<myrealmkey>")
+        "https://api.fastly.com/service/<my-service>?key=<fastly-api-token>")
 ```
