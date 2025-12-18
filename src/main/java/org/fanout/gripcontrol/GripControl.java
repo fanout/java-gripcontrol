@@ -186,7 +186,7 @@ public class GripControl {
     /**
      * Validate the specified JWT token and key.
      * This method is used to validate the GRIP-SIG header coming from GRIP
-     * proxies such as Pushpin or Fanout.io. Note that the token expiration
+     * proxies such as Pushpin or Fastly Fanout. Note that the token expiration
      * is also verified.
      */
     public static boolean validateSig(String token, String key) {
