@@ -1,0 +1,24 @@
+<!-- Copy this file to settings.xml -->
+<settings>
+    <servers>
+        <server>
+            <!-- Fill in credentials below with a User token from Maven Central. -->
+            <id>central</id>
+            <username>***</username>
+            <password>***</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>central</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <!-- fill in credentials below with a GPG key and passphrase. -->
+            <properties>
+                <gpg.keyName>***</gpg.keyName>
+                <gpg.passphrase>***</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
+</settings>
