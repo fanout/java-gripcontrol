@@ -10,3 +10,5 @@
       - encodeWebSocketEventsBinary() to generate a binary version of encoded websocket.
 1.2.1
       - add support for bearer tokens
+1.2.2
+      - Bump pubcontrol to 1.0.9
