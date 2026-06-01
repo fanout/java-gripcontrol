@@ -21,7 +21,7 @@ Maven:
 <dependency>
   <groupId>org.fanout</groupId>
   <artifactId>gripcontrol</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
 </dependency>
 <dependency>
   <groupId>org.fanout</groupId>
